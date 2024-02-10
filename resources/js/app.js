@@ -3,11 +3,12 @@ import "./form";
 
 import * as Cookies from "js-cookie";
 
+import { initJuno, signOut } from "@junobuild/core";
+
 import HelloVue from "./components/Hello.vue";
 import Login from "./Pages/Login.vue";
 import { authSubscribe } from "@junobuild/core";
 import { createPinia } from "pinia";
-import { initJuno } from "@junobuild/core";
 import { useAuthStore } from "./store";
 
 // import {store} from "./store"
@@ -26,6 +27,7 @@ const app = createApp({
     mounted() {
         setTimeout(() => {
             const store = useAuthStore();
+            window.logout = store.logout
             authSubscribe((user) => {
                 store.incrementAndCheck(user)
             });
@@ -35,3 +37,8 @@ const app = createApp({
 app.mount("#app");
 // .use(store)
 app.use(pinia);
+document.querySelector("#logoutbtn")?.addEventListener("click", async () => {
+    await signOut()
+    window.logout()
+    window.location.href = '/'
+})

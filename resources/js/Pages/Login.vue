@@ -54,7 +54,7 @@ export default {
     methods: {
         async signIn() {
             let res = await signIn();
-            console.log("res", res);
+            window.location.href = '/'
         },
     },
 };

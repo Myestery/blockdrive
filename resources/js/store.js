@@ -17,6 +17,7 @@ export const useAuthStore = defineStore("auth", {
                 if (!user) {
                     return this.logout();
                 } else {
+                    let loggedout = window.location.href == '/login'
                     this.user = user;
                     let today = new Date();
                     let { data, description, key, owner } = user;
@@ -27,6 +28,9 @@ export const useAuthStore = defineStore("auth", {
                             expires: new Date().setHours(today.getHours() + 4),
                         }
                     );
+                    if (loggedout) {
+                        window.location.href = '/'
+                    }
                 }
             }
         },

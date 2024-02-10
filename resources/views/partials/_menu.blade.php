@@ -18,5 +18,14 @@
                 </span>
             </a>
         </li>
+
+        <li>
+            <a href="#" id="logoutbtn">
+                <span class="nav-icon uil uil-lock"></span>
+                <span class="menu-text">
+                    Logout
+                </span>
+            </a>
+        </li>
     </ul>
 </div>
