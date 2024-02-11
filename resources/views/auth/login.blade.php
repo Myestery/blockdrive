@@ -27,15 +27,7 @@
             </div>
         </div>
     </div>
-    <div class="enable-dark-mode dark-trigger">
-        <ul>
-            <li>
-                <a href="#">
-                    <i class="uil uil-moon"></i>
-                </a>
-            </li>
-        </ul>
-    </div>
+
 
 </body>
 <script src="{{ asset('assets/js/plugins.min.js') }}"></script>

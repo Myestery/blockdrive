@@ -1,4 +1,5 @@
 @include('partials._header')
+
 <body class="layout-light side-menu">
     <div class="mobile-search">
         <form action="/" class="search-form">
@@ -10,7 +11,7 @@
     <header class="header-top">
         @include('partials._top_nav')
     </header>
-    <main class="main-content" >
+    <main class="main-content">
         <div class="sidebar-wrapper">
             <aside class="sidebar sidebar-collapse" id="sidebar">
                 @include('partials._menu')
@@ -49,12 +50,33 @@
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDduF2tLXicDEPDMAtC6-NLOekX0A5vlnY"></script>
     @production
-    <script src="{{ asset('js/app.min.js') }}"></script>
+        <script src="{{ asset('js/app.min.js') }}"></script>
     @endproduction
     @env('local')
     <script src="{{ asset('js/app.js') }}"></script>
     @endenv
     <script src="{{ asset('assets/js/plugins.min.js') }}"></script>
     <script src="{{ asset('assets/js/script.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+    </script>
 </body>
+
 </html>
