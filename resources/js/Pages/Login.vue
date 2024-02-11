@@ -30,9 +30,33 @@
                                                 <button
                                                     @click="signIn"
                                                     type="button"
-                                                    class="btn btn-primary btn-default w-100 btn-squared text-capitalize lh-normal px-50 signIn-createBtn"
+                                                    :class="`btn ${
+                                                        loading
+                                                            ? 'btn-info'
+                                                            : 'btn-secondary'
+                                                    } btn-default w-100 btn-squared text-capitalize lh-normal px-50 signIn-createBtn`"
+                                                    :disabled="loading"
                                                 >
-                                                    sign in
+                                                    <span v-if="!loading">
+                                                        sign in</span
+                                                    >
+                                                    <div
+                                                        v-else
+                                                        class="dm-spin-dots spin-sm"
+                                                    >
+                                                        <span
+                                                            class="spin-dot badge-dot dot-primary"
+                                                        ></span>
+                                                        <span
+                                                            class="spin-dot badge-dot dot-primary"
+                                                        ></span>
+                                                        <span
+                                                            class="spin-dot badge-dot dot-primary"
+                                                        ></span>
+                                                        <span
+                                                            class="spin-dot badge-dot dot-primary"
+                                                        ></span>
+                                                    </div>
                                                 </button>
                                             </div>
                                         </div>
@@ -51,10 +75,16 @@
 import { signIn } from "@junobuild/core";
 
 export default {
+    data() {
+        return {
+            loading: false,
+        };
+    },
     methods: {
         async signIn() {
+            this.loading = true;
             let res = await signIn();
-            window.location.href = '/'
+            window.location.href = "/";
         },
     },
 };

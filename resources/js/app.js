@@ -5,6 +5,8 @@ import * as Cookies from "js-cookie";
 
 import { initJuno, signOut } from "@junobuild/core";
 
+import Directory from './components/Directory.vue'
+import Files from "./Pages/Files.vue";
 import HelloVue from "./components/Hello.vue";
 import Login from "./Pages/Login.vue";
 import { authSubscribe } from "@junobuild/core";
@@ -14,7 +16,7 @@ import { useAuthStore } from "./store";
 // import {store} from "./store"
 
 initJuno({
-    satelliteId: "aibci-pyaaa-aaaal-adn4a-cai",
+    satelliteId: "dkclv-ziaaa-aaaal-adssq-cai",
 });
 
 const { createApp } = require("vue");
@@ -23,13 +25,15 @@ const app = createApp({
     components: {
         HelloVue,
         Login,
+        Files,
+        Directory
     },
     mounted() {
         setTimeout(() => {
             const store = useAuthStore();
-            window.logout = store.logout
+            window.logout = store.logout;
             authSubscribe((user) => {
-                store.incrementAndCheck(user)
+                store.incrementAndCheck(user);
             });
         }, 0);
     },
@@ -38,7 +42,7 @@ app.mount("#app");
 // .use(store)
 app.use(pinia);
 document.querySelector("#logoutbtn")?.addEventListener("click", async () => {
-    await signOut()
-    window.logout()
-    window.location.href = '/'
-})
+    await signOut();
+    window.logout();
+    window.location.href = "/";
+});

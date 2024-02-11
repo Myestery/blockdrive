@@ -48,13 +48,13 @@
         }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDduF2tLXicDEPDMAtC6-NLOekX0A5vlnY"></script>
-    <script src="{{ asset('assets/js/plugins.min.js') }}"></script>
-    <script src="{{ asset('assets/js/script.min.js') }}"></script>
     @production
     <script src="{{ asset('js/app.min.js') }}"></script>
     @endproduction
     @env('local')
     <script src="{{ asset('js/app.js') }}"></script>
     @endenv
+    <script src="{{ asset('assets/js/plugins.min.js') }}"></script>
+    <script src="{{ asset('assets/js/script.min.js') }}"></script>
 </body>
 </html>

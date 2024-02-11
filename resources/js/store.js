@@ -17,19 +17,23 @@ export const useAuthStore = defineStore("auth", {
                 if (!user) {
                     return this.logout();
                 } else {
-                    let loggedout = window.location.href == '/login'
+                    let loggedout = window.location.href == "/login";
                     this.user = user;
-                    let today = new Date();
+                    var expirationDate = new Date();
+                    expirationDate.setTime(
+                        expirationDate.getTime() + 4 * 60 * 60 * 1000
+                    ); // 4 hours in milliseconds
+
                     let { data, description, key, owner } = user;
                     Cookies.set(
                         "user",
                         JSON.stringify({ data, description, key, owner }),
                         {
-                            expires: new Date().setHours(today.getHours() + 4),
+                            expires: expirationDate
                         }
                     );
                     if (loggedout) {
-                        window.location.href = '/'
+                        window.location.href = "/";
                     }
                 }
             }
