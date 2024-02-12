@@ -215,11 +215,10 @@
                                           class="dropdown-menu dropdown-menu--dynamic"
                                         >
                                           <a
-                                            v-if="file.asset"
                                             class="dropdown-item"
                                             :download="file.name"
                                             target="_blank"
-                                            :href="file.asset.downloadUrl"
+                                            :href="file.downloadUrl"
                                             ><img
                                               src="/assets/img/svg/download.svg"
                                               alt="download"
@@ -227,16 +226,7 @@
                                             />Download</a
                                           >
 
-                                          <a
-                                            @click="Delete(file)"
-                                            class="dropdown-item"
-                                            href="#"
-                                            ><img
-                                              class="svg"
-                                              src="/assets/img/svg/trash-2.svg"
-                                              alt=""
-                                            />Delete</a
-                                          >
+
                                         </div>
                                       </div>
                                     </div>
@@ -269,9 +259,7 @@
 
 <script>
 import {
-  deleteAsset,
-  deleteDoc,
-  deleteManyDocs,
+
   getDoc,
   listAssets,
   listDocs,
@@ -432,69 +420,6 @@ export default {
     },
     findFolder(id, folders) {
       return findFolder(id, folders);
-    },
-    async Delete(file, confirmed = false) {
-      let raw_file = this.raw_files.find((x) => x.key == file.id);
-      if (!confirmed) {
-        if (!confirm("Are you sure you want to delete from shared?")) {
-          return;
-        }
-      }
-      this.loading = true;
-      // delete from storage and data store
-      //   get asset
-      //   let asset = file.asset;
-
-      try {
-        await Promise.all([
-          deleteDoc({
-            collection: "public_files",
-            doc: raw_file,
-          }),
-        ]);
-        this.loading = false;
-        if (!confirmed) {
-          toastr.success(`File ${file.name} was deleted successfully`);
-          await this.fetchDirectory();
-          // switch to current folder
-          this.switchDirectory(this.active_folder.id);
-        }
-      } catch (error) {
-        this.loading = false;
-        console.log(error);
-        toastr.error(`Error Deleting ${file.name}`);
-      }
-    },
-    async DeleteFolder(folder) {
-      if (
-        !confirm(
-          `Do you want to delete ${folder.name} and all its contents from shared`
-        )
-      ) {
-        return;
-      }
-      // get all files
-      let promises = folder.files.map((x) => this.Delete(x, true));
-      let folder_promises = folder.folders.map((x) => this.DeleteFolder(x));
-      try {
-        this.loading = true;
-        await Promise.all([
-          ...promises,
-          ...folder_promises,
-          deleteDoc({
-            collection: "public_folders",
-            doc: this.raw_folders.find((x) => x.key == folder.id),
-          }),
-        ]);
-        toastr.success(`Folder ${folder.name} was deleted successfully`);
-        this.loading = false;
-        await this.fetchDirectory();
-        // switch to current folder
-        this.switchDirectory(this.active_folder.id);
-      } catch (error) {
-        this.loading = false;
-        toastr.error(`Error Deleting ${folder.name}`);
-      }
     },
     goHome() {
       this.active_folder = {
