@@ -53,8 +53,11 @@
                 <div class="col-79 col-lg-9 col-sm-8">
                   <div class="fileM-grid-wrapper mb-30">
                     <div class="fileM-wrapper mb-25">
-                      <div class="fileM-top-search">
-                        <form action="/" class="d-flex align-items-center">
+                      <div class="fileM-top-search row">
+                        <form
+                          action="/"
+                          class="d-flex align-items-center col-2"
+                        >
                           <img
                             src="/assets/img/svg/search.svg"
                             alt="search"
@@ -67,6 +70,20 @@
                             aria-label="Search"
                           />
                         </form>
+
+                        <a
+                          v-if="active_folder.path != '/'"
+                          href="javascript:void(0)"
+                          @click="CopyUrl(active_folder)"
+                          class="btn btn-lg btn-outline-lighten btn-upload col-3"
+                        >
+                          <img
+                            src="/assets/img/svg/download.svg"
+                            alt="copy"
+                            class="svg"
+                          />
+                          Copy Link to {{ active_folder.path }}</a
+                        >
                       </div>
                       <h6 class="fileM-wrapper__title">
                         Folders in
@@ -119,7 +136,10 @@
                                         />
                                       </button>
                                       <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
+                                        <a
+                                          @click="CopyUrl(folder)"
+                                          class="dropdown-item"
+                                          href="#"
                                           ><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             fill="none"
@@ -134,7 +154,7 @@
                                               d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z"
                                             />
                                           </svg>
-                                          Share</a
+                                          Copy URL</a
                                         >
 
                                         <a
@@ -289,6 +309,10 @@
                               </tr>
                             </tbody>
                           </table>
+                          <textarea
+                            style="display: none"
+                            ref="urlTextarea"
+                          ></textarea>
                         </div>
                         <!-- End: .userDatatable-->
                       </div>
@@ -361,7 +385,7 @@ export default {
     };
   },
   methods: {
-        trim(text) {
+    trim(text) {
       return text.length > 30 ? text.substring(0, 30) + "..." : text;
     },
     async fetchDirectory() {
@@ -397,7 +421,7 @@ export default {
           .filter(
             (x) =>
               x.parentFolderId == null ||
-              !(this.raw_folders.map((x) => x.data.id).includes(x.parentFolderId))
+              !this.raw_folders.map((x) => x.data.id).includes(x.parentFolderId)
           ),
         folders.items
           .map((x) => x.data)
@@ -481,14 +505,14 @@ export default {
       this.loading = true;
       // delete from storage and data store
       //   get asset
-    //   let asset = file.asset;
+      //   let asset = file.asset;
 
       try {
         await Promise.all([
           deleteDoc({
             collection: "public_files",
             doc: raw_file,
-          })
+          }),
         ]);
         this.loading = false;
         if (!confirmed) {
@@ -505,7 +529,9 @@ export default {
     },
     async DeleteFolder(folder) {
       if (
-        !confirm(`Do you want to delete ${folder.name} and all its contents from shared`)
+        !confirm(
+          `Do you want to delete ${folder.name} and all its contents from shared`
+        )
       ) {
         return;
       }
@@ -539,6 +565,23 @@ export default {
         folders: this.filesystem,
         files: [],
       };
+    },
+    CopyUrl(folder) {
+      // host /shared-folders/:id
+      // Access the textarea element using $refs
+      const textarea = this.$refs.urlTextarea;
+
+      // Set the value of the textarea to the URL
+      textarea.value = `${window.location.origin}/shared-folders/${folder.id}`;
+
+      // Select the text in the textarea
+      textarea.select();
+      textarea.setSelectionRange(0, 99999); // For mobile devices
+
+      // Copy the selected text to the clipboard
+      navigator.clipboard.writeText(textarea.value);
+
+      toastr.success(`Url of ${folder.name} copied to clipboard`);
     },
   },
   async mounted() {
