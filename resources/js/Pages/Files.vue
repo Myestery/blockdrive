@@ -450,9 +450,12 @@
                         Files in
                         {{ active_folder?.path || "/" }}
                       </h6>
-                      <div class="fileM-grid table-responsive">
+                      <div
+                        class="fileM-grid table-responsive"
+                        style="min-height: 300px"
+                      >
                         <div class="filleM-table w-100">
-                          <table class="table mb-0" v-if="active_folder">
+                          <table class="table mb-0 pb-12" v-if="active_folder">
                             <thead>
                               <tr class="userDatatable-header">
                                 <th>
@@ -516,7 +519,7 @@
                                 <td>
                                   <div class="userDatatable-content">You</div>
                                 </td>
-                                <td>True</td>
+                                <td>False</td>
                                 <td>
                                   <div class="project-progress text-end">
                                     <div class="fileM-action__right">
@@ -536,21 +539,23 @@
                                         <div
                                           class="dropdown-menu dropdown-menu--dynamic"
                                         >
-                                          <a class="dropdown-item" href="#"
+                                          <a
+                                            v-if="file.asset"
+                                            class="dropdown-item"
+                                            :download="file.name"
+                                            target="_blank"
+                                            :href="file.asset.downloadUrl"
                                             ><img
                                               src="/assets/img/svg/download.svg"
                                               alt="download"
                                               class="svg"
                                             />Download</a
                                           >
-                                          <a class="dropdown-item" href="#"
-                                            ><img
-                                              src="/assets/img/svg/link-2.svg"
-                                              alt="link-2"
-                                              class="svg color-danger"
-                                            />Copy</a
-                                          >
-                                          <a class="dropdown-item" href="#"
+
+                                          <a
+                                            @click="Delete(file)"
+                                            class="dropdown-item"
+                                            href="#"
                                             ><img
                                               class="svg"
                                               src="/assets/img/svg/trash-2.svg"
@@ -585,9 +590,11 @@
 
 <script>
 import {
+  deleteAsset,
   deleteDoc,
   deleteManyDocs,
   getDoc,
+  listAssets,
   listDocs,
   setDoc,
   uploadFile,
@@ -688,6 +695,10 @@ export default {
       creating_folder: false,
       uploading_file: false,
       uploaded_file_name: "",
+
+      raw_files: [],
+      raw_folders: [],
+      loading: false,
     };
   },
   methods: {
@@ -737,13 +748,14 @@ export default {
         collection: "folders",
         key,
       });
-      console.log(f2);
-      // await deleteDoc
-      const [folders, files] = await Promise.all([
+      const [folders, files, storageAssets] = await Promise.all([
         listDocs({
           collection: "folders",
         }),
         listDocs({
+          collection: "files",
+        }),
+        listAssets({
           collection: "files",
         }),
       ]);
@@ -757,7 +769,11 @@ export default {
       console.log({
         folders,
         files,
+        storageAssets,
       });
+
+      this.raw_files = files.items;
+      this.raw_folders = folders.items;
 
       this.filesystem = this.buildFilesystem(
         folders.items
@@ -766,7 +782,13 @@ export default {
         folders.items
           .map((x) => x.data)
           .filter((x) => x.parentFolderId != null),
-        files.items.map((x) => x.data)
+        files.items.map((x) => {
+          // get asset from storageAssets
+          return {
+            asset: storageAssets.assets.find((ass) => ass.token == x.key),
+            ...x.data,
+          };
+        })
       );
     },
     getFiles(event) {
@@ -809,14 +831,17 @@ export default {
           `File ${file.name} was added successfully`,
           "File Uploaded Successfully"
         );
-        console.log([fileRecord, fileStored]);
+        setTimeout(() => {
+          document.getElementById("cancelCreateFile").click();
+        }, 0);
         // load
-        this.fetchDirectory();
+        await this.fetchDirectory();
+        // switch to current folder
+        this.switchDirectory(this.active_folder.id);
       } catch (error) {
         this.uploading_file = false;
         toastr.error(`Error Uploading File`);
         console.log(error);
-      } finally {
         setTimeout(() => {
           document.getElementById("cancelCreateFile").click();
         }, 0);
@@ -875,13 +900,54 @@ export default {
     findFolder(id, folders) {
       return findFolder(id, folders);
     },
+    async Delete(file) {
+      let raw_file = this.raw_files.find((x) => x.key == file.id);
+      if (!confirm("Are you sure you want to delete")) {
+        return;
+      }
+      this.loading = true;
+      // delete from storage and data store
+      //   get asset
+      let asset = file.asset;
+
+      try {
+        await Promise.all([
+          deleteDoc({
+            collection: "files",
+            doc: raw_file,
+          }),
+          !!file.asset
+            ? deleteAsset({
+                collection: "files",
+                fullPath: asset.fullPath,
+              })
+            : setTimeout(() => {}, 0),
+        ]);
+        this.loading = false;
+        toastr.success(`File ${file.name} was deleted successfully`);
+        await this.fetchDirectory();
+        // switch to current folder
+        this.switchDirectory(this.active_folder.id);
+      } catch (error) {
+        this.loading = false;
+        console.log(error);
+        toastr.error(`Error Deleting ${file.name}`);
+      }
+    },
   },
   async mounted() {
     await this.fetchDirectory();
     // this.filesystem = filesystem
     // this.active_folder = this.filesystem.length ? this.filesystem[0] : null;
-
-    // listen to changes in the file input
+  },
+  watch: {
+    loading(newVal, oldVal) {
+      if (newVal) {
+        document.querySelector("body").style.opacity = 0.4;
+      } else {
+        document.querySelector("body").style.opacity = 1;
+      }
+    },
   },
 };
 </script>

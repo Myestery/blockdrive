@@ -20953,7 +20953,10 @@ function _findFolder(id, folders) {
       filesystem: [],
       creating_folder: false,
       uploading_file: false,
-      uploaded_file_name: ""
+      uploaded_file_name: "",
+      raw_files: [],
+      raw_folders: [],
+      loading: false
     };
   },
   methods: {
@@ -21013,7 +21016,7 @@ function _findFolder(id, folders) {
     fetchDirectory: function fetchDirectory() {
       var _this2 = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var key, f2, _yield$Promise$all, _yield$Promise$all2, folders, files;
+        var key, f2, _yield$Promise$all, _yield$Promise$all2, folders, files, storageAssets;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
@@ -21025,19 +21028,20 @@ function _findFolder(id, folders) {
               });
             case 3:
               f2 = _context2.sent;
-              console.log(f2);
-              // await deleteDoc
-              _context2.next = 7;
+              _context2.next = 6;
               return Promise.all([(0,_junobuild_core__WEBPACK_IMPORTED_MODULE_0__.listDocs)({
                 collection: "folders"
               }), (0,_junobuild_core__WEBPACK_IMPORTED_MODULE_0__.listDocs)({
                 collection: "files"
+              }), (0,_junobuild_core__WEBPACK_IMPORTED_MODULE_0__.listAssets)({
+                collection: "files"
               })]);
-            case 7:
+            case 6:
               _yield$Promise$all = _context2.sent;
-              _yield$Promise$all2 = _slicedToArray(_yield$Promise$all, 2);
+              _yield$Promise$all2 = _slicedToArray(_yield$Promise$all, 3);
               folders = _yield$Promise$all2[0];
               files = _yield$Promise$all2[1];
+              storageAssets = _yield$Promise$all2[2];
               //   await deleteManyDocs({
               //     docs: folders.items.map((x) => {
               //       return { collection: "folders", doc: x };
@@ -21046,8 +21050,11 @@ function _findFolder(id, folders) {
 
               console.log({
                 folders: folders,
-                files: files
+                files: files,
+                storageAssets: storageAssets
               });
+              _this2.raw_files = files.items;
+              _this2.raw_folders = folders.items;
               _this2.filesystem = _this2.buildFilesystem(folders.items.map(function (x) {
                 return x.data;
               }).filter(function (x) {
@@ -21057,9 +21064,14 @@ function _findFolder(id, folders) {
               }).filter(function (x) {
                 return x.parentFolderId != null;
               }), files.items.map(function (x) {
-                return x.data;
+                // get asset from storageAssets
+                return _objectSpread({
+                  asset: storageAssets.assets.find(function (ass) {
+                    return ass.token == x.key;
+                  })
+                }, x.data);
               }));
-            case 13:
+            case 15:
             case "end":
               return _context2.stop();
           }
@@ -21114,28 +21126,31 @@ function _findFolder(id, folders) {
               fileStored = _yield$Promise$all4[1];
               _this3.uploading_file = false;
               toastr.success("File ".concat(file.name, " was added successfully"), "File Uploaded Successfully");
-              console.log([fileRecord, fileStored]);
+              setTimeout(function () {
+                document.getElementById("cancelCreateFile").click();
+              }, 0);
               // load
-              _this3.fetchDirectory();
-              _context3.next = 22;
+              _context3.next = 16;
+              return _this3.fetchDirectory();
+            case 16:
+              // switch to current folder
+              _this3.switchDirectory(_this3.active_folder.id);
+              _context3.next = 25;
               break;
-            case 17:
-              _context3.prev = 17;
+            case 19:
+              _context3.prev = 19;
               _context3.t0 = _context3["catch"](4);
               _this3.uploading_file = false;
               toastr.error("Error Uploading File");
               console.log(_context3.t0);
-            case 22:
-              _context3.prev = 22;
               setTimeout(function () {
                 document.getElementById("cancelCreateFile").click();
               }, 0);
-              return _context3.finish(22);
             case 25:
             case "end":
               return _context3.stop();
           }
-        }, _callee3, null, [[4, 17, 22, 25]]);
+        }, _callee3, null, [[4, 19]]);
       }))();
     },
     buildFilesystem: function buildFilesystem(rootFolders, folders, files) {
@@ -21214,22 +21229,83 @@ function _findFolder(id, folders) {
     },
     findFolder: function findFolder(id, folders) {
       return _findFolder(id, folders);
+    },
+    Delete: function Delete(file) {
+      var _this4 = this;
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+        var raw_file, asset;
+        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+          while (1) switch (_context4.prev = _context4.next) {
+            case 0:
+              raw_file = _this4.raw_files.find(function (x) {
+                return x.key == file.id;
+              });
+              if (confirm("Are you sure you want to delete")) {
+                _context4.next = 3;
+                break;
+              }
+              return _context4.abrupt("return");
+            case 3:
+              _this4.loading = true;
+              // delete from storage and data store
+              //   get asset
+              asset = file.asset;
+              _context4.prev = 5;
+              _context4.next = 8;
+              return Promise.all([(0,_junobuild_core__WEBPACK_IMPORTED_MODULE_0__.deleteDoc)({
+                collection: "files",
+                doc: raw_file
+              }), !!file.asset ? (0,_junobuild_core__WEBPACK_IMPORTED_MODULE_0__.deleteAsset)({
+                collection: "files",
+                fullPath: asset.fullPath
+              }) : setTimeout(function () {}, 0)]);
+            case 8:
+              _this4.loading = false;
+              toastr.success("File ".concat(file.name, " was deleted successfully"));
+              _context4.next = 12;
+              return _this4.fetchDirectory();
+            case 12:
+              // switch to current folder
+              _this4.switchDirectory(_this4.active_folder.id);
+              _context4.next = 20;
+              break;
+            case 15:
+              _context4.prev = 15;
+              _context4.t0 = _context4["catch"](5);
+              _this4.loading = false;
+              console.log(_context4.t0);
+              toastr.error("Error Deleting ".concat(file.name));
+            case 20:
+            case "end":
+              return _context4.stop();
+          }
+        }, _callee4, null, [[5, 15]]);
+      }))();
     }
   },
   mounted: function mounted() {
-    var _this4 = this;
-    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-        while (1) switch (_context4.prev = _context4.next) {
+    var _this5 = this;
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+        while (1) switch (_context5.prev = _context5.next) {
           case 0:
-            _context4.next = 2;
-            return _this4.fetchDirectory();
+            _context5.next = 2;
+            return _this5.fetchDirectory();
           case 2:
           case "end":
-            return _context4.stop();
+            return _context5.stop();
         }
-      }, _callee4);
+      }, _callee5);
     }))();
+  },
+  watch: {
+    loading: function loading(newVal, oldVal) {
+      if (newVal) {
+        document.querySelector("body").style.opacity = 0.4;
+      } else {
+        document.querySelector("body").style.opacity = 1;
+      }
+    }
   }
 });
 
@@ -21655,14 +21731,17 @@ var _hoisted_77 = {
   "class": "fileM-wrapper__title mb-35"
 };
 var _hoisted_78 = {
-  "class": "fileM-grid table-responsive"
+  "class": "fileM-grid table-responsive",
+  style: {
+    "min-height": "300px"
+  }
 };
 var _hoisted_79 = {
   "class": "filleM-table w-100"
 };
 var _hoisted_80 = {
   key: 0,
-  "class": "table mb-0"
+  "class": "table mb-0 pb-12"
 };
 var _hoisted_81 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", {
@@ -21707,16 +21786,19 @@ var _hoisted_88 = /*#__PURE__*/_withScopeId(function () {
   }, "You")], -1 /* HOISTED */);
 });
 var _hoisted_89 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "True", -1 /* HOISTED */);
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "False", -1 /* HOISTED */);
 });
-var _hoisted_90 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-    "class": "project-progress text-end"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-    "class": "fileM-action__right"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-    "class": "dropdown dropleft"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+var _hoisted_90 = {
+  "class": "project-progress text-end"
+};
+var _hoisted_91 = {
+  "class": "fileM-action__right"
+};
+var _hoisted_92 = {
+  "class": "dropdown dropleft"
+};
+var _hoisted_93 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     "class": "btn-link border-0 bg-transparent p-0",
     "data-bs-toggle": "dropdown",
     "aria-haspopup": "true",
@@ -21725,30 +21807,26 @@ var _hoisted_90 = /*#__PURE__*/_withScopeId(function () {
     "class": "svg",
     src: "/assets/img/svg/more-vertical.svg",
     alt: "more-vertical"
-  })]), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-    "class": "dropdown-menu dropdown-menu--dynamic"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
-    "class": "dropdown-item",
-    href: "#"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+  })], -1 /* HOISTED */);
+});
+var _hoisted_94 = {
+  "class": "dropdown-menu dropdown-menu--dynamic"
+};
+var _hoisted_95 = ["download", "href"];
+var _hoisted_96 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
     src: "/assets/img/svg/download.svg",
     alt: "download",
     "class": "svg"
-  }), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Download")]), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
-    "class": "dropdown-item",
-    href: "#"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
-    src: "/assets/img/svg/link-2.svg",
-    alt: "link-2",
-    "class": "svg color-danger"
-  }), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Copy")]), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
-    "class": "dropdown-item",
-    href: "#"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_97 = ["onClick"];
+var _hoisted_98 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
     "class": "svg",
     src: "/assets/img/svg/trash-2.svg",
     alt: ""
-  }), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Delete")])])])])])], -1 /* HOISTED */);
+  }, null, -1 /* HOISTED */);
 });
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _$data$active_folder, _$data$active_folder2, _$data$active_folder3, _$data$active_folder4, _$data$active_folder5, _$data$active_folder6;
@@ -21805,7 +21883,19 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   }), 128 /* KEYED_FRAGMENT */))])) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_75, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", null, "No folders found in " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(((_$data$active_folder5 = $data.active_folder) === null || _$data$active_folder5 === void 0 ? void 0 : _$data$active_folder5.path) || "/"), 1 /* TEXT */)]))]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_76, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", _hoisted_77, " Files in " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(((_$data$active_folder6 = $data.active_folder) === null || _$data$active_folder6 === void 0 ? void 0 : _$data$active_folder6.path) || "/"), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_78, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_79, [$data.active_folder ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("table", _hoisted_80, [_hoisted_81, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($data.active_folder.files, function (file) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
       key: file.id
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_82, [_hoisted_83, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_84, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_85, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(file.name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_86, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(file.type.split("/")[1]), 1 /* TEXT */)])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_87, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" convert bytes to mb "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((file.size / 1024 / 1024).toFixed(2)) + " MB ", 1 /* TEXT */)])]), _hoisted_88, _hoisted_89, _hoisted_90]);
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_82, [_hoisted_83, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_84, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_85, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(file.name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_86, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(file.type.split("/")[1]), 1 /* TEXT */)])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_87, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" convert bytes to mb "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((file.size / 1024 / 1024).toFixed(2)) + " MB ", 1 /* TEXT */)])]), _hoisted_88, _hoisted_89, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_90, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_91, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_92, [_hoisted_93, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_94, [file.asset ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("a", {
+      key: 0,
+      "class": "dropdown-item",
+      download: file.name,
+      target: "_blank",
+      href: file.asset.downloadUrl
+    }, [_hoisted_96, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Download")], 8 /* PROPS */, _hoisted_95)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
+      onClick: function onClick($event) {
+        return $options.Delete(file);
+      },
+      "class": "dropdown-item",
+      href: "#"
+    }, [_hoisted_98, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Delete")], 8 /* PROPS */, _hoisted_97)])])])])])]);
   }), 128 /* KEYED_FRAGMENT */))])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" End: .userDatatable")])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ends: .col-lg-10 ")]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ends: .col-lg-2 ")])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ends: .col-lg-12 ")])])])]);
 }
 
