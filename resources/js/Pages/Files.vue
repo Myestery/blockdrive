@@ -275,7 +275,7 @@
                             <div class="sidebar__menu-group">
                               <ul class="sidebar_nav">
                                 <li class="menu-title">
-                                  <span>Quick Access</span>
+                                  <span @click="goHome">Home</span>
                                 </li>
                                 <directory
                                   :filesystem="filesystem"
@@ -328,30 +328,6 @@
                             aria-label="Search"
                           />
                         </form>
-                        <div class="project-icon-selected">
-                          <div class="listing-social-link pb-lg-0 pb-xs-2">
-                            <div class="icon-list-social d-flex">
-                              <a
-                                class="icon-list-social__link rounded-circle icon-list-social__style justify-content-center ms-xl-20 me-20"
-                                href="/"
-                              >
-                                <img
-                                  class="svg"
-                                  src="/assets/img/svg/grid.svg"
-                                  alt="grid"
-                              /></a>
-                              <a
-                                class="icon-list-social__link rounded-circle icon-list-social__style justify-content-center active"
-                                href="/"
-                              >
-                                <img
-                                  class="svg"
-                                  src="/assets/img/svg/list.svg"
-                                  alt="list"
-                              /></a>
-                            </div>
-                          </div>
-                        </div>
                       </div>
                       <h6 class="fileM-wrapper__title">
                         Folders in
@@ -361,6 +337,7 @@
                         <div
                           v-for="folder in active_folder.folders"
                           :key="folder.id"
+                          @dblclick="switchDirectory(folder.id)"
                           class="col-xl-2 col-lg-4 col-sm-6 mb-25"
                         >
                           <div class="fileM-card">
@@ -421,7 +398,10 @@
                                           Share</a
                                         >
 
-                                        <a class="dropdown-item" href="#"
+                                        <a
+                                          @click="DeleteFolder(folder)"
+                                          class="dropdown-item"
+                                          href="#"
                                           ><img
                                             class="svg"
                                             src="/assets/img/svg/trash-2.svg"
@@ -601,66 +581,6 @@ import {
 } from "@junobuild/core";
 import { ulid } from "ulid";
 import Directory from "../components/Directory.vue";
-// let filesystem = [
-//   {
-//     id: "folder123",
-//     name: "Documents",
-//     parentFolderId: null,
-//     createdAt: "2024-02-10T12:00:00Z",
-//     updatedAt: "2024-02-10T12:00:00Z",
-//     folders: [
-//       {
-//         id: "folder456",
-//         name: "Work",
-//         parentFolderId: "folder123",
-//         createdAt: "2024-02-11T08:30:00Z",
-//         updatedAt: "2024-02-11T09:00:00Z",
-//         folders: [
-//           {
-//             id: "folder457",
-//             name: "Work child",
-//             parentFolderId: "folder123",
-//             createdAt: "2024-02-11T08:30:00Z",
-//             updatedAt: "2024-02-11T09:00:00Z",
-//             folders: [
-//               {
-//                 id: "folder458",
-//                 name: "Work Grandchild",
-//                 parentFolderId: "folder123",
-//                 createdAt: "2024-02-11T08:30:00Z",
-//                 updatedAt: "2024-02-11T09:00:00Z",
-//                 folders: [],
-//               },
-//             ],
-//             files: [
-//               {
-//                 id: "file789",
-//                 name: "Report.pdf",
-//                 folderId: "folder456",
-//                 type: "application/pdf",
-//                 size: 204800,
-//                 createdAt: "2024-02-12T10:15:00Z",
-//                 updatedAt: "2024-02-12T10:15:00Z",
-//               },
-//             ],
-//           },
-//         ],
-//         files: [
-//           {
-//             id: "file789",
-//             name: "Report.pdf",
-//             folderId: "folder456",
-//             type: "application/pdf",
-//             size: 204800,
-//             createdAt: "2024-02-12T10:15:00Z",
-//             updatedAt: "2024-02-12T10:15:00Z",
-//           },
-//         ],
-//       },
-//     ],
-//     files: [],
-//   },
-// ];
 
 function findFolder(id, folders, path = "") {
   for (const folder of folders) {
@@ -894,16 +814,20 @@ export default {
       return rootFolders.map((rootFolder) => folderMap.get(rootFolder.id));
     },
     switchDirectory(folder_id) {
-      console.log("switched to ", folder_id);
+      if (!folder_id) {
+        return this.goHome();
+      }
       this.active_folder = findFolder(folder_id, this.filesystem);
     },
     findFolder(id, folders) {
       return findFolder(id, folders);
     },
-    async Delete(file) {
+    async Delete(file, confirmed = false) {
       let raw_file = this.raw_files.find((x) => x.key == file.id);
-      if (!confirm("Are you sure you want to delete")) {
-        return;
+      if (!confirmed) {
+        if (!confirm("Are you sure you want to delete")) {
+          return;
+        }
       }
       this.loading = true;
       // delete from storage and data store
@@ -924,19 +848,57 @@ export default {
             : setTimeout(() => {}, 0),
         ]);
         this.loading = false;
-        toastr.success(`File ${file.name} was deleted successfully`);
-        await this.fetchDirectory();
-        // switch to current folder
-        this.switchDirectory(this.active_folder.id);
+        if (!confirmed) {
+          toastr.success(`File ${file.name} was deleted successfully`);
+          await this.fetchDirectory();
+          // switch to current folder
+          this.switchDirectory(this.active_folder.id);
+        }
       } catch (error) {
         this.loading = false;
         console.log(error);
         toastr.error(`Error Deleting ${file.name}`);
       }
     },
+    async DeleteFolder(folder) {
+      if (
+        !confirm(`Do you want to delete ${folder.name} and all its contents`)
+      ) {
+        return;
+      }
+      // get all files
+      let promises = folder.files.map((x) => this.Delete(x, true));
+      try {
+        this.loading = true;
+        await Promise.all([
+          ...promises,
+          deleteDoc({
+            collection: "folders",
+            doc: this.raw_folders.find((x) => x.key == folder.id),
+          }),
+        ]);
+        toastr.success(`Folder ${folder.name} was deleted successfully`);
+        this.loading = false;
+        await this.fetchDirectory();
+        // switch to current folder
+        this.switchDirectory(this.active_folder.id);
+      } catch (error) {
+        this.loading = false;
+        toastr.error(`Error Deleting ${folder.name}`);
+      }
+    },
+    goHome() {
+      this.active_folder = {
+        path: "/",
+        id: null,
+        folders: this.filesystem,
+        files: [],
+      };
+    },
   },
   async mounted() {
     await this.fetchDirectory();
+    this.goHome();
     // this.filesystem = filesystem
     // this.active_folder = this.filesystem.length ? this.filesystem[0] : null;
   },

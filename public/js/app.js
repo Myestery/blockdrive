@@ -20830,6 +20830,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ulid__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ulid */ "./node_modules/ulid/dist/index.esm.js");
 /* harmony import */ var _components_Directory_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/Directory.vue */ "./resources/js/components/Directory.vue");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
@@ -20847,67 +20851,6 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 
 
-
-// let filesystem = [
-//   {
-//     id: "folder123",
-//     name: "Documents",
-//     parentFolderId: null,
-//     createdAt: "2024-02-10T12:00:00Z",
-//     updatedAt: "2024-02-10T12:00:00Z",
-//     folders: [
-//       {
-//         id: "folder456",
-//         name: "Work",
-//         parentFolderId: "folder123",
-//         createdAt: "2024-02-11T08:30:00Z",
-//         updatedAt: "2024-02-11T09:00:00Z",
-//         folders: [
-//           {
-//             id: "folder457",
-//             name: "Work child",
-//             parentFolderId: "folder123",
-//             createdAt: "2024-02-11T08:30:00Z",
-//             updatedAt: "2024-02-11T09:00:00Z",
-//             folders: [
-//               {
-//                 id: "folder458",
-//                 name: "Work Grandchild",
-//                 parentFolderId: "folder123",
-//                 createdAt: "2024-02-11T08:30:00Z",
-//                 updatedAt: "2024-02-11T09:00:00Z",
-//                 folders: [],
-//               },
-//             ],
-//             files: [
-//               {
-//                 id: "file789",
-//                 name: "Report.pdf",
-//                 folderId: "folder456",
-//                 type: "application/pdf",
-//                 size: 204800,
-//                 createdAt: "2024-02-12T10:15:00Z",
-//                 updatedAt: "2024-02-12T10:15:00Z",
-//               },
-//             ],
-//           },
-//         ],
-//         files: [
-//           {
-//             id: "file789",
-//             name: "Report.pdf",
-//             folderId: "folder456",
-//             type: "application/pdf",
-//             size: 204800,
-//             createdAt: "2024-02-12T10:15:00Z",
-//             updatedAt: "2024-02-12T10:15:00Z",
-//           },
-//         ],
-//       },
-//     ],
-//     files: [],
-//   },
-// ];
 
 function _findFolder(id, folders) {
   var path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
@@ -21224,34 +21167,42 @@ function _findFolder(id, folders) {
       });
     },
     switchDirectory: function switchDirectory(folder_id) {
-      console.log("switched to ", folder_id);
+      if (!folder_id) {
+        return this.goHome();
+      }
       this.active_folder = _findFolder(folder_id, this.filesystem);
     },
     findFolder: function findFolder(id, folders) {
       return _findFolder(id, folders);
     },
     Delete: function Delete(file) {
-      var _this4 = this;
+      var _arguments = arguments,
+        _this4 = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-        var raw_file, asset;
+        var confirmed, raw_file, asset;
         return _regeneratorRuntime().wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
+              confirmed = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : false;
               raw_file = _this4.raw_files.find(function (x) {
                 return x.key == file.id;
               });
+              if (confirmed) {
+                _context4.next = 5;
+                break;
+              }
               if (confirm("Are you sure you want to delete")) {
-                _context4.next = 3;
+                _context4.next = 5;
                 break;
               }
               return _context4.abrupt("return");
-            case 3:
+            case 5:
               _this4.loading = true;
               // delete from storage and data store
               //   get asset
               asset = file.asset;
-              _context4.prev = 5;
-              _context4.next = 8;
+              _context4.prev = 7;
+              _context4.next = 10;
               return Promise.all([(0,_junobuild_core__WEBPACK_IMPORTED_MODULE_0__.deleteDoc)({
                 collection: "files",
                 doc: raw_file
@@ -21259,43 +21210,108 @@ function _findFolder(id, folders) {
                 collection: "files",
                 fullPath: asset.fullPath
               }) : setTimeout(function () {}, 0)]);
-            case 8:
+            case 10:
               _this4.loading = false;
+              if (confirmed) {
+                _context4.next = 16;
+                break;
+              }
               toastr.success("File ".concat(file.name, " was deleted successfully"));
-              _context4.next = 12;
+              _context4.next = 15;
               return _this4.fetchDirectory();
-            case 12:
+            case 15:
               // switch to current folder
               _this4.switchDirectory(_this4.active_folder.id);
-              _context4.next = 20;
+            case 16:
+              _context4.next = 23;
               break;
-            case 15:
-              _context4.prev = 15;
-              _context4.t0 = _context4["catch"](5);
+            case 18:
+              _context4.prev = 18;
+              _context4.t0 = _context4["catch"](7);
               _this4.loading = false;
               console.log(_context4.t0);
               toastr.error("Error Deleting ".concat(file.name));
-            case 20:
+            case 23:
             case "end":
               return _context4.stop();
           }
-        }, _callee4, null, [[5, 15]]);
+        }, _callee4, null, [[7, 18]]);
       }))();
+    },
+    DeleteFolder: function DeleteFolder(folder) {
+      var _this5 = this;
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+        var promises;
+        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          while (1) switch (_context5.prev = _context5.next) {
+            case 0:
+              if (confirm("Do you want to delete ".concat(folder.name, " and all its contents"))) {
+                _context5.next = 2;
+                break;
+              }
+              return _context5.abrupt("return");
+            case 2:
+              // get all files
+              promises = folder.files.map(function (x) {
+                return _this5.Delete(x, true);
+              });
+              _context5.prev = 3;
+              _this5.loading = true;
+              _context5.next = 7;
+              return Promise.all([].concat(_toConsumableArray(promises), [(0,_junobuild_core__WEBPACK_IMPORTED_MODULE_0__.deleteDoc)({
+                collection: "folders",
+                doc: _this5.raw_folders.find(function (x) {
+                  return x.key == folder.id;
+                })
+              })]));
+            case 7:
+              toastr.success("Folder ".concat(folder.name, " was deleted successfully"));
+              _this5.loading = false;
+              _context5.next = 11;
+              return _this5.fetchDirectory();
+            case 11:
+              // switch to current folder
+              _this5.switchDirectory(_this5.active_folder.id);
+              _context5.next = 18;
+              break;
+            case 14:
+              _context5.prev = 14;
+              _context5.t0 = _context5["catch"](3);
+              _this5.loading = false;
+              toastr.error("Error Deleting ".concat(folder.name));
+            case 18:
+            case "end":
+              return _context5.stop();
+          }
+        }, _callee5, null, [[3, 14]]);
+      }))();
+    },
+    goHome: function goHome() {
+      this.active_folder = {
+        path: "/",
+        id: null,
+        folders: this.filesystem,
+        files: []
+      };
     }
   },
   mounted: function mounted() {
-    var _this5 = this;
-    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-        while (1) switch (_context5.prev = _context5.next) {
+    var _this6 = this;
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
+      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+        while (1) switch (_context6.prev = _context6.next) {
           case 0:
-            _context5.next = 2;
-            return _this5.fetchDirectory();
+            _context6.next = 2;
+            return _this6.fetchDirectory();
           case 2:
+            _this6.goHome();
+            // this.filesystem = filesystem
+            // this.active_folder = this.filesystem.length ? this.filesystem[0] : null;
+          case 3:
           case "end":
-            return _context5.stop();
+            return _context6.stop();
         }
-      }, _callee5);
+      }, _callee6);
     }))();
   },
   watch: {
@@ -21646,11 +21662,9 @@ var _hoisted_59 = {
 var _hoisted_60 = {
   "class": "sidebar_nav"
 };
-var _hoisted_61 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("li", {
-    "class": "menu-title"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "Quick Access")], -1 /* HOISTED */);
-});
+var _hoisted_61 = {
+  "class": "menu-title"
+};
 var _hoisted_62 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "fileM-progress"
@@ -21684,7 +21698,23 @@ var _hoisted_64 = {
 var _hoisted_65 = {
   "class": "fileM-wrapper mb-25"
 };
-var _hoisted_66 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"fileM-top-search\" data-v-190e271e><form action=\"/\" class=\"d-flex align-items-center\" data-v-190e271e><img src=\"/assets/img/svg/search.svg\" alt=\"search\" class=\"svg\" data-v-190e271e><input class=\"form-control px-10 border-0 box-shadow-none\" type=\"search\" placeholder=\"Search by Name\" aria-label=\"Search\" data-v-190e271e></form><div class=\"project-icon-selected\" data-v-190e271e><div class=\"listing-social-link pb-lg-0 pb-xs-2\" data-v-190e271e><div class=\"icon-list-social d-flex\" data-v-190e271e><a class=\"icon-list-social__link rounded-circle icon-list-social__style justify-content-center ms-xl-20 me-20\" href=\"/\" data-v-190e271e><img class=\"svg\" src=\"/assets/img/svg/grid.svg\" alt=\"grid\" data-v-190e271e></a><a class=\"icon-list-social__link rounded-circle icon-list-social__style justify-content-center active\" href=\"/\" data-v-190e271e><img class=\"svg\" src=\"/assets/img/svg/list.svg\" alt=\"list\" data-v-190e271e></a></div></div></div></div>", 1);
+var _hoisted_66 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    "class": "fileM-top-search"
+  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", {
+    action: "/",
+    "class": "d-flex align-items-center"
+  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+    src: "/assets/img/svg/search.svg",
+    alt: "search",
+    "class": "svg"
+  }), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    "class": "form-control px-10 border-0 box-shadow-none",
+    type: "search",
+    placeholder: "Search by Name",
+    "aria-label": "Search"
+  })])], -1 /* HOISTED */);
+});
 var _hoisted_67 = {
   "class": "fileM-wrapper__title"
 };
@@ -21692,16 +21722,17 @@ var _hoisted_68 = {
   key: 0,
   "class": "row"
 };
-var _hoisted_69 = {
+var _hoisted_69 = ["onDblclick"];
+var _hoisted_70 = {
   "class": "fileM-card"
 };
-var _hoisted_70 = {
+var _hoisted_71 = {
   "class": "card border-0"
 };
-var _hoisted_71 = {
+var _hoisted_72 = {
   "class": "card-body pb-40 pt-45"
 };
-var _hoisted_72 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_73 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "g"
   }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("svg", {
@@ -21717,33 +21748,81 @@ var _hoisted_72 = /*#__PURE__*/_withScopeId(function () {
     d: "M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"
   })])], -1 /* HOISTED */);
 });
-var _hoisted_73 = {
+var _hoisted_74 = {
   "class": "fileM-excerpt"
 };
-var _hoisted_74 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"fileM-action\" data-v-190e271e><div class=\"fileM-action__right\" data-v-190e271e><div class=\"dropdown dropleft position-absolute\" data-v-190e271e><button class=\"btn-link border-0 bg-transparent p-0\" data-bs-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\" data-v-190e271e><img class=\"svg\" src=\"/assets/img/svg/more-vertical.svg\" alt=\"more-vertical\" data-v-190e271e></button><div class=\"dropdown-menu\" data-v-190e271e><a class=\"dropdown-item\" href=\"#\" data-v-190e271e><svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\" class=\"w-6 h-6\" data-v-190e271e><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z\" data-v-190e271e></path></svg> Share</a><a class=\"dropdown-item\" href=\"#\" data-v-190e271e><img class=\"svg\" src=\"/assets/img/svg/trash-2.svg\" alt=\"\" data-v-190e271e>Delete</a></div></div></div></div>", 1);
 var _hoisted_75 = {
-  key: 1
+  "class": "fileM-action"
 };
 var _hoisted_76 = {
-  "class": "fileM-wrapper"
+  "class": "fileM-action__right"
 };
 var _hoisted_77 = {
+  "class": "dropdown dropleft position-absolute"
+};
+var _hoisted_78 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": "btn-link border-0 bg-transparent p-0",
+    "data-bs-toggle": "dropdown",
+    "aria-haspopup": "true",
+    "aria-expanded": "false"
+  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+    "class": "svg",
+    src: "/assets/img/svg/more-vertical.svg",
+    alt: "more-vertical"
+  })], -1 /* HOISTED */);
+});
+var _hoisted_79 = {
+  "class": "dropdown-menu"
+};
+var _hoisted_80 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
+    "class": "dropdown-item",
+    href: "#"
+  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    fill: "none",
+    viewBox: "0 0 24 24",
+    "stroke-width": "1.5",
+    stroke: "currentColor",
+    "class": "w-6 h-6"
+  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("path", {
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round",
+    d: "M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z"
+  })]), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Share")], -1 /* HOISTED */);
+});
+var _hoisted_81 = ["onClick"];
+var _hoisted_82 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+    "class": "svg",
+    src: "/assets/img/svg/trash-2.svg",
+    alt: ""
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_83 = {
+  key: 1
+};
+var _hoisted_84 = {
+  "class": "fileM-wrapper"
+};
+var _hoisted_85 = {
   "class": "fileM-wrapper__title mb-35"
 };
-var _hoisted_78 = {
+var _hoisted_86 = {
   "class": "fileM-grid table-responsive",
   style: {
     "min-height": "300px"
   }
 };
-var _hoisted_79 = {
+var _hoisted_87 = {
   "class": "filleM-table w-100"
 };
-var _hoisted_80 = {
+var _hoisted_88 = {
   key: 0,
   "class": "table mb-0 pb-12"
 };
-var _hoisted_81 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_89 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", {
     "class": "userDatatable-header"
   }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
@@ -21756,10 +21835,10 @@ var _hoisted_81 = /*#__PURE__*/_withScopeId(function () {
     "class": "projectDatatable-title"
   }, "shared")]), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th")])], -1 /* HOISTED */);
 });
-var _hoisted_82 = {
+var _hoisted_90 = {
   "class": "files-area__left d-flex align-items-center"
 };
-var _hoisted_83 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_91 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "files-area__img"
   }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
@@ -21768,36 +21847,36 @@ var _hoisted_83 = /*#__PURE__*/_withScopeId(function () {
     "class": "wh-40"
   })], -1 /* HOISTED */);
 });
-var _hoisted_84 = {
+var _hoisted_92 = {
   "class": "files-area__title"
 };
-var _hoisted_85 = {
+var _hoisted_93 = {
   "class": "mb-0 fs-14 fw-500 color-dark text-capitalize"
 };
-var _hoisted_86 = {
+var _hoisted_94 = {
   "class": "color-light fs-12 d-flex"
 };
-var _hoisted_87 = {
+var _hoisted_95 = {
   "class": "userDatatable-content"
 };
-var _hoisted_88 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_96 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "userDatatable-content"
   }, "You")], -1 /* HOISTED */);
 });
-var _hoisted_89 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_97 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "False", -1 /* HOISTED */);
 });
-var _hoisted_90 = {
+var _hoisted_98 = {
   "class": "project-progress text-end"
 };
-var _hoisted_91 = {
+var _hoisted_99 = {
   "class": "fileM-action__right"
 };
-var _hoisted_92 = {
+var _hoisted_100 = {
   "class": "dropdown dropleft"
 };
-var _hoisted_93 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_101 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     "class": "btn-link border-0 bg-transparent p-0",
     "data-bs-toggle": "dropdown",
@@ -21809,19 +21888,19 @@ var _hoisted_93 = /*#__PURE__*/_withScopeId(function () {
     alt: "more-vertical"
   })], -1 /* HOISTED */);
 });
-var _hoisted_94 = {
+var _hoisted_102 = {
   "class": "dropdown-menu dropdown-menu--dynamic"
 };
-var _hoisted_95 = ["download", "href"];
-var _hoisted_96 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_103 = ["download", "href"];
+var _hoisted_104 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
     src: "/assets/img/svg/download.svg",
     alt: "download",
     "class": "svg"
   }, null, -1 /* HOISTED */);
 });
-var _hoisted_97 = ["onClick"];
-var _hoisted_98 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_105 = ["onClick"];
+var _hoisted_106 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
     "class": "svg",
     src: "/assets/img/svg/trash-2.svg",
@@ -21872,30 +21951,43 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     type: "button",
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)("btn btn-squared text-capitalize btn-default ".concat($data.uploading_file ? 'btn-info' : 'btn-secondary')),
     disabled: $data.uploading_file
-  }, [!$data.uploading_file ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_51, " Upload")) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_52, [].concat(_hoisted_57)))], 10 /* CLASS, PROPS */, _hoisted_50)])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_58, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_59, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", _hoisted_60, [_hoisted_61, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_directory, {
+  }, [!$data.uploading_file ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_51, " Upload")) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_52, [].concat(_hoisted_57)))], 10 /* CLASS, PROPS */, _hoisted_50)])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_58, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_59, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", _hoisted_60, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("li", _hoisted_61, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    onClick: _cache[5] || (_cache[5] = function () {
+      return $options.goHome && $options.goHome.apply($options, arguments);
+    })
+  }, "Home")]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_directory, {
     filesystem: $data.filesystem,
     onSwitchDirectory: $options.switchDirectory
   }, null, 8 /* PROPS */, ["filesystem", "onSwitchDirectory"])])])]), _hoisted_62])])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_63, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_64, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_65, [_hoisted_66, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", _hoisted_67, " Folders in " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(((_$data$active_folder3 = $data.active_folder) === null || _$data$active_folder3 === void 0 ? void 0 : _$data$active_folder3.path) || "/"), 1 /* TEXT */), (_$data$active_folder4 = $data.active_folder) !== null && _$data$active_folder4 !== void 0 && (_$data$active_folder4 = _$data$active_folder4.folders) !== null && _$data$active_folder4 !== void 0 && _$data$active_folder4.length ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_68, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($data.active_folder.folders, function (folder) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
       key: folder.id,
+      onDblclick: function onDblclick($event) {
+        return $options.switchDirectory(folder.id);
+      },
       "class": "col-xl-2 col-lg-4 col-sm-6 mb-25"
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_69, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_70, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_71, [_hoisted_72, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_73, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(folder.name), 1 /* TEXT */), _hoisted_74])])])]);
-  }), 128 /* KEYED_FRAGMENT */))])) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_75, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", null, "No folders found in " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(((_$data$active_folder5 = $data.active_folder) === null || _$data$active_folder5 === void 0 ? void 0 : _$data$active_folder5.path) || "/"), 1 /* TEXT */)]))]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_76, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", _hoisted_77, " Files in " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(((_$data$active_folder6 = $data.active_folder) === null || _$data$active_folder6 === void 0 ? void 0 : _$data$active_folder6.path) || "/"), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_78, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_79, [$data.active_folder ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("table", _hoisted_80, [_hoisted_81, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($data.active_folder.files, function (file) {
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_70, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_71, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_72, [_hoisted_73, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_74, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(folder.name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_75, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_76, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_77, [_hoisted_78, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_79, [_hoisted_80, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
+      onClick: function onClick($event) {
+        return $options.DeleteFolder(folder);
+      },
+      "class": "dropdown-item",
+      href: "#"
+    }, [_hoisted_82, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Delete")], 8 /* PROPS */, _hoisted_81)])])])])])])])], 40 /* PROPS, NEED_HYDRATION */, _hoisted_69);
+  }), 128 /* KEYED_FRAGMENT */))])) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_83, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", null, "No folders found in " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(((_$data$active_folder5 = $data.active_folder) === null || _$data$active_folder5 === void 0 ? void 0 : _$data$active_folder5.path) || "/"), 1 /* TEXT */)]))]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_84, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", _hoisted_85, " Files in " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(((_$data$active_folder6 = $data.active_folder) === null || _$data$active_folder6 === void 0 ? void 0 : _$data$active_folder6.path) || "/"), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_86, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_87, [$data.active_folder ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("table", _hoisted_88, [_hoisted_89, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($data.active_folder.files, function (file) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
       key: file.id
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_82, [_hoisted_83, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_84, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_85, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(file.name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_86, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(file.type.split("/")[1]), 1 /* TEXT */)])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_87, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" convert bytes to mb "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((file.size / 1024 / 1024).toFixed(2)) + " MB ", 1 /* TEXT */)])]), _hoisted_88, _hoisted_89, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_90, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_91, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_92, [_hoisted_93, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_94, [file.asset ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("a", {
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_90, [_hoisted_91, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_92, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_93, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(file.name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_94, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(file.type.split("/")[1]), 1 /* TEXT */)])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_95, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" convert bytes to mb "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((file.size / 1024 / 1024).toFixed(2)) + " MB ", 1 /* TEXT */)])]), _hoisted_96, _hoisted_97, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_98, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_99, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_100, [_hoisted_101, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_102, [file.asset ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("a", {
       key: 0,
       "class": "dropdown-item",
       download: file.name,
       target: "_blank",
       href: file.asset.downloadUrl
-    }, [_hoisted_96, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Download")], 8 /* PROPS */, _hoisted_95)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
+    }, [_hoisted_104, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Download")], 8 /* PROPS */, _hoisted_103)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
       onClick: function onClick($event) {
         return $options.Delete(file);
       },
       "class": "dropdown-item",
       href: "#"
-    }, [_hoisted_98, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Delete")], 8 /* PROPS */, _hoisted_97)])])])])])]);
+    }, [_hoisted_106, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Delete")], 8 /* PROPS */, _hoisted_105)])])])])])]);
   }), 128 /* KEYED_FRAGMENT */))])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" End: .userDatatable")])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ends: .col-lg-10 ")]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ends: .col-lg-2 ")])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ends: .col-lg-12 ")])])])]);
 }
 
