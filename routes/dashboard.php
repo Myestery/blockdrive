@@ -12,7 +12,8 @@ Route::group([
         Route::get('/', [FilemanagerController::class, 'index'])->name('files');
         Route::redirect('/dashboard', '/');
         Route::get('/files', [FilemanagerController::class, 'index'])->name('files');
-        Route::get('/shared', [FilemanagerController::class, 'shared'])->name('files');
+        Route::get('/shared', [FilemanagerController::class, 'shared'])->name('files.shared');
+        Route::get('/shared-folders/{folder}', [FilemanagerController::class, 'public'])->name('files.public')->withoutMiddleware('junoAuth');
     });
 });
 /************************ Dashboard Routes Ends ******************************/
