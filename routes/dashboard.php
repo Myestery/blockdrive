@@ -9,9 +9,10 @@ Route::group([
     'middleware' => "junoAuth"
 ], function () {
     Route::group(['as' => 'dashboard.'], function () {
-        Route::get('/', [DashboardController::class, 'demoTwo'])->name('dashboard');
-        Route::get('/dashboard', [DashboardController::class, 'demoTwo'])->name('demo_two');
+        Route::get('/', [FilemanagerController::class, 'index'])->name('files');
+        Route::redirect('/dashboard', '/');
         Route::get('/files', [FilemanagerController::class, 'index'])->name('files');
+        Route::get('/shared', [FilemanagerController::class, 'shared'])->name('files');
     });
 });
 /************************ Dashboard Routes Ends ******************************/

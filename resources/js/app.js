@@ -9,11 +9,13 @@ import Directory from './components/Directory.vue'
 import Files from "./Pages/Files.vue";
 import HelloVue from "./components/Hello.vue";
 import Login from "./Pages/Login.vue";
+import Shared from "./Pages/Shared.vue"
 import { authSubscribe } from "@junobuild/core";
 import { createPinia } from "pinia";
 import { useAuthStore } from "./store";
 
 // import {store} from "./store"
+
 
 initJuno({
     satelliteId: "dkclv-ziaaa-aaaal-adssq-cai",
@@ -26,7 +28,8 @@ const app = createApp({
         HelloVue,
         Login,
         Files,
-        Directory
+        Directory,
+        Shared
     },
     mounted() {
         setTimeout(() => {

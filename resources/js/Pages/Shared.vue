@@ -5,7 +5,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="breadcrumb-main">
-              <h4 class="text-capitalize breadcrumb-title">File Manager</h4>
+              <h4 class="text-capitalize breadcrumb-title">Shared Files</h4>
               <div class="breadcrumb-action justify-content-center flex-wrap">
                 <nav aria-label="breadcrumb">
                   <ol class="breadcrumb">
@@ -13,7 +13,7 @@
                       <a href="/"><i class="las la-home"></i>Home</a>
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">
-                      File Manager
+                      Shared Files
                     </li>
                   </ol>
                 </nav>
@@ -29,246 +29,7 @@
                       <div class="card border-0 shadow-none">
                         <div class="card-body px-15 pt-30">
                           <div class="px-xl-3">
-                            <div class="fileM-action__right">
-                              <div
-                                class="dropdown dropleft content-center d-flex"
-                              >
-                                <a
-                                  href="#"
-                                  class="btn btn-primary btn-default btn-rounded content-center"
-                                  data-bs-toggle="dropdown"
-                                  aria-haspopup="true"
-                                  aria-expanded="false"
-                                >
-                                  <img
-                                    class="svg"
-                                    src="/assets/img/svg/plus.svg"
-                                    alt=""
-                                  />
-                                  Create</a
-                                >
-                                <div class="dropdown-menu">
-                                  <a
-                                    class="dropdown-item"
-                                    href="#"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#staticBackdrop1"
-                                    ><img
-                                      src="/assets/img/svg/folder.svg"
-                                      alt="folder"
-                                      class="svg"
-                                    />Create folder</a
-                                  >
-                                  <a
-                                    class="dropdown-item"
-                                    href="#"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#staticBackdrop2"
-                                    ><img
-                                      src="/assets/img/svg/folder.svg"
-                                      alt="folder"
-                                      class="svg"
-                                    />File Upload
-                                  </a>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <!-- Modal -->
-                          <div
-                            class="modal fade fileM-Modal-overlay show"
-                            id="staticBackdrop1"
-                            data-backdrop="static"
-                            data-keyboard="false"
-                            tabindex="-1"
-                            aria-labelledby="staticBackdrop1Label"
-                            aria-hidden="true"
-                          >
-                            <div class="modal-dialog modal-dialog-centered">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h6
-                                    class="modal-title fw-500"
-                                    id="staticBackdrop1Label"
-                                  >
-                                    Create Folder in
-                                    {{ active_folder?.path || "/" }}
-                                  </h6>
-                                  <button
-                                    type="button"
-                                    class="close shadow-none border-0 bg-transparent"
-                                    data-bs-dismiss="modal"
-                                    aria-label="Close"
-                                  >
-                                    <span
-                                      aria-hidden="true"
-                                      class="la la-close"
-                                    ></span>
-                                  </button>
-                                </div>
-                                <div class="modal-body">
-                                  <form @submit.prevent="createFolder">
-                                    <div class="form-group mb-20">
-                                      <input
-                                        type="text"
-                                        class="form-control"
-                                        placeholder="File name"
-                                        v-model="folder_name"
-                                      />
-                                    </div>
-                                  </form>
-                                </div>
-                                <div class="modal-footer m-n1">
-                                  <button
-                                    type="button"
-                                    class="btn btn-light btn-default btn-squared fw-400 text-capitalize b-light color-light"
-                                    data-bs-dismiss="modal"
-                                    :disabled="creating_folder"
-                                    id="cancelCreateFolder"
-                                  >
-                                    Cancel
-                                  </button>
-                                  <button
-                                    @click.prevent="createFolder"
-                                    type="button"
-                                    :class="`btn btn-squared text-capitalize btn-default ${
-                                      creating_folder
-                                        ? 'btn-info'
-                                        : 'btn-secondary'
-                                    }`"
-                                    :disabled="creating_folder"
-                                  >
-                                    <span v-if="!creating_folder"> Create</span>
-                                    <div v-else class="dm-spin-dots spin-sm">
-                                      <span
-                                        class="spin-dot badge-dot dot-primary"
-                                      ></span>
-                                      <span
-                                        class="spin-dot badge-dot dot-primary"
-                                      ></span>
-                                      <span
-                                        class="spin-dot badge-dot dot-primary"
-                                      ></span>
-                                      <span
-                                        class="spin-dot badge-dot dot-primary"
-                                      ></span>
-                                    </div>
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <!-- Modal -->
-                          <div
-                            class="modal fade fileM-Modal-overlay"
-                            id="staticBackdrop2"
-                            data-backdrop="static"
-                            data-keyboard="false"
-                            tabindex="-1"
-                            aria-labelledby="staticBackdrop2Label"
-                            aria-hidden="true"
-                          >
-                            <div class="modal-dialog modal-dialog-centered">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h6
-                                    class="modal-title fw-500"
-                                    id="staticBackdrop2Label"
-                                  >
-                                    Upload File to
-                                    {{ active_folder?.path || "/" }}
-                                  </h6>
-                                  <button
-                                    type="button"
-                                    class="close shadow-none border-0 bg-transparent"
-                                    data-bs-dismiss="modal"
-                                    aria-label="Close"
-                                  >
-                                    <span
-                                      aria-hidden="true"
-                                      class="la la-close"
-                                    ></span>
-                                  </button>
-                                </div>
-                                <div class="modal-body">
-                                  <form>
-                                    <div class="form-group mb-20">
-                                      <div class="dm-upload">
-                                        <div class="dm-upload__button">
-                                          <a
-                                            href="javascript:void(0)"
-                                            class="btn btn-lg btn-outline-lighten btn-upload"
-                                            onclick="$('#upload-3').click()"
-                                          >
-                                            <img
-                                              src="/assets/img/svg/upload.svg"
-                                              alt="upload"
-                                              class="svg"
-                                            />
-                                            Click to
-                                            {{
-                                              uploaded_file_name
-                                                ? "Change"
-                                                : "Upload"
-                                            }}</a
-                                          >
-                                          <input
-                                            type="file"
-                                            name="upload-3"
-                                            class="upload-one"
-                                            id="upload-3"
-                                            @change="getFiles"
-                                          />
-                                        </div>
-                                        <div class="dm-upload__file">
-                                          <ul :key="uploaded_file_name">
-                                            <li></li>
-                                          </ul>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </form>
-                                </div>
-                                <div class="modal-footer m-n1">
-                                  <button
-                                    type="button"
-                                    class="btn btn-light btn-default btn-squared fw-400 text-capitalize b-light color-light"
-                                    data-bs-dismiss="modal"
-                                    id="cancelCreateFile"
-                                  >
-                                    Cancel
-                                  </button>
-                                  <button
-                                    @click.prevent="uploadFile"
-                                    type="button"
-                                    :class="`btn btn-squared text-capitalize btn-default ${
-                                      uploading_file
-                                        ? 'btn-info'
-                                        : 'btn-secondary'
-                                    }`"
-                                    :disabled="uploading_file"
-                                  >
-                                    <span v-if="!uploading_file"> Upload</span>
-                                    <div v-else class="dm-spin-dots spin-sm">
-                                      <span
-                                        class="spin-dot badge-dot dot-primary"
-                                      ></span>
-                                      <span
-                                        class="spin-dot badge-dot dot-primary"
-                                      ></span>
-                                      <span
-                                        class="spin-dot badge-dot dot-primary"
-                                      ></span>
-                                      <span
-                                        class="spin-dot badge-dot dot-primary"
-                                      ></span>
-                                    </div>
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
+                            <div class="fileM-action__right"></div>
                           </div>
 
                           <div class="fileM-types">
@@ -358,10 +119,7 @@
                                         />
                                       </button>
                                       <div class="dropdown-menu">
-                                        <a
-                                          @click="Share(folder)"
-                                          class="dropdown-item"
-                                          href="#"
+                                        <a class="dropdown-item" href="#"
                                           ><svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             fill="none"
@@ -480,7 +238,7 @@
                                 <td>
                                   <div class="userDatatable-content">You</div>
                                 </td>
-                                <td>False</td>
+                                <td>True</td>
                                 <td>
                                   <div class="project-progress text-end">
                                     <div class="fileM-action__right">
@@ -584,29 +342,6 @@ function findFolder(id, folders, path = "") {
   // Folder with the specified ID not found
   return null;
 }
-function getAllFoldersAndFiles(folder) {
-  // Initialize arrays to store files and folders
-  const files = [];
-  const folders = [];
-
-  // Function to recursively collect files and folders
-  function collectFilesAndFolders(folder) {
-    // Add the current folder's files to the files array
-    files.push(...folder.files);
-
-    // Recursively process subfolders
-    for (const subfolder of folder.folders) {
-      folders.push(subfolder);
-      collectFilesAndFolders(subfolder);
-    }
-  }
-
-  // Start collecting files and folders from the root folder
-  collectFilesAndFolders(folder);
-
-  // Return the collected files and folders
-  return { files, folders };
-}
 export default {
   components: { Directory },
   data() {
@@ -626,45 +361,8 @@ export default {
     };
   },
   methods: {
-    async createFolder() {
-      let key = ulid();
-      this.creating_folder = true;
-      try {
-        await setDoc({
-          collection: "folders",
-          doc: {
-            key,
-            data: {
-              id: key,
-              name: this.folder_name,
-              parentFolderId: this.active_folder?.id || null,
-              folders: [],
-              files: [],
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-          },
-        });
-        console.log(key);
-        toastr.success(
-          `Folder ${this.folder_name} was added successfully`,
-          "Folder Created Successfully"
-        );
-        this.creating_folder = false;
-        // close modal
-        setTimeout(() => {
-          document.getElementById("cancelCreateFolder").click();
-        }, 0);
-        // get filesystem again
-        await this.fetchDirectory();
-      } catch (error) {
-        console.error(error);
-        toastr.error(
-          `An error occurred while creating folder ${this.folder_name}`,
-          "Error Creating Folder"
-        );
-        this.creating_folder = false;
-      }
+        trim(text) {
+      return text.length > 30 ? text.substring(0, 30) + "..." : text;
     },
     async fetchDirectory() {
       let key = "01HPCJ34VXBHKYDE8ZZ49C8WXR";
@@ -674,13 +372,13 @@ export default {
       });
       const [folders, files, storageAssets] = await Promise.all([
         listDocs({
-          collection: "folders",
+          collection: "public_folders",
         }),
         listDocs({
-          collection: "files",
+          collection: "public_files",
         }),
         listAssets({
-          collection: "files",
+          collection: "public_files",
         }),
       ]);
 
@@ -696,7 +394,11 @@ export default {
       this.filesystem = this.buildFilesystem(
         folders.items
           .map((x) => x.data)
-          .filter((x) => x.parentFolderId == null),
+          .filter(
+            (x) =>
+              x.parentFolderId == null ||
+              !(this.raw_folders.map((x) => x.data.id).includes(x.parentFolderId))
+          ),
         folders.items
           .map((x) => x.data)
           .filter((x) => x.parentFolderId != null),
@@ -713,58 +415,6 @@ export default {
       const input = event.target;
       const files = input.files;
       this.uploaded_file_name = Array.from(files)[0].name;
-    },
-    async uploadFile() {
-      let files = document.getElementById("upload-3").files;
-      let file = Array.from(files)[0];
-      let key = ulid();
-      this.uploading_file = true;
-      try {
-        let data = {
-          id: key,
-          name: file.name,
-          folderId: this.active_folder?.id || null,
-          type: file.type,
-          size: file.size,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        const fileStored = await uploadFile({
-          data: file,
-          collection: "files",
-          token: key,
-        });
-
-        // update file with asset download url
-        await setDoc({
-          collection: "files",
-          doc: {
-            key,
-            data: { ...data, downloadUrl: fileStored.downloadUrl },
-          },
-        });
-
-        this.uploading_file = false;
-        toastr.success(
-          `File ${file.name} was added successfully`,
-          "File Uploaded Successfully"
-        );
-        setTimeout(() => {
-          document.getElementById("cancelCreateFile").click();
-        }, 0);
-        // load
-        await this.fetchDirectory();
-        // switch to current folder
-        this.switchDirectory(this.active_folder.id);
-      } catch (error) {
-        this.uploading_file = false;
-        toastr.error(`Error Uploading File`);
-        console.log(error);
-        setTimeout(() => {
-          document.getElementById("cancelCreateFile").click();
-        }, 0);
-      }
     },
     buildFilesystem(rootFolders, folders, files) {
       // Create a map to store folders and files by their IDs
@@ -824,27 +474,21 @@ export default {
     async Delete(file, confirmed = false) {
       let raw_file = this.raw_files.find((x) => x.key == file.id);
       if (!confirmed) {
-        if (!confirm("Are you sure you want to delete")) {
+        if (!confirm("Are you sure you want to delete from shared?")) {
           return;
         }
       }
       this.loading = true;
       // delete from storage and data store
       //   get asset
-      let asset = file.asset;
+    //   let asset = file.asset;
 
       try {
         await Promise.all([
           deleteDoc({
-            collection: "files",
+            collection: "public_files",
             doc: raw_file,
-          }),
-          !!file.asset
-            ? deleteAsset({
-                collection: "files",
-                fullPath: asset.fullPath,
-              })
-            : setTimeout(() => {}, 0),
+          })
         ]);
         this.loading = false;
         if (!confirmed) {
@@ -861,7 +505,7 @@ export default {
     },
     async DeleteFolder(folder) {
       if (
-        !confirm(`Do you want to delete ${folder.name} and all its contents`)
+        !confirm(`Do you want to delete ${folder.name} and all its contents from shared`)
       ) {
         return;
       }
@@ -874,7 +518,7 @@ export default {
           ...promises,
           ...folder_promises,
           deleteDoc({
-            collection: "folders",
+            collection: "public_folders",
             doc: this.raw_folders.find((x) => x.key == folder.id),
           }),
         ]);
@@ -895,48 +539,6 @@ export default {
         folders: this.filesystem,
         files: [],
       };
-    },
-    trim(text) {
-      return text.length > 30 ? text.substring(0, 30) + "..." : text;
-    },
-    async Share(folder) {
-      // create the folder and all subfolders
-      let map = getAllFoldersAndFiles(folder);
-      let files = map.files;
-      let subfolders = map.folders.map((x) => ({ ...x, files: undefined }));
-
-      //   now create the files and folders on shared
-      this.loading = true;
-      try {
-        let files_promise = files.map((file) => {
-          return setDoc({
-            collection: "public_files",
-            doc: this.raw_files.find((x) => x.key == file.id),
-          });
-        });
-        let folders_promise = subfolders.map((folder) => {
-          //   console.log("folder",this.raw_folders.find((x) => x.key == folder.id));
-          return setDoc({
-            collection: "public_folders",
-            doc: this.raw_folders.find((x) => x.key == folder.id),
-          });
-        });
-        await Promise.all([
-          ...files_promise,
-          ...folders_promise,
-        //   the folder itself
-          setDoc({
-            collection: "public_folders",
-            doc: this.raw_folders.find((x) => x.key == folder.id),
-          }),
-        ]);
-        this.loading = false;
-        toastr.success("Folder shared successfully");
-      } catch (error) {
-        this.loading = false;
-        console.log(error);
-        toastr.error("Error sharing folder");
-      }
     },
   },
   async mounted() {

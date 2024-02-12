@@ -27,7 +27,6 @@
 //     updatedAt: "2024-02-12T10:15:00Z",
 // };
 
-
 // Create a function to build the filesystem data structure
 function buildFilesystem(rootFolders, folders, files) {
     // Create a map to store folders and files by their IDs
@@ -47,7 +46,10 @@ function buildFilesystem(rootFolders, folders, files) {
         }
         const parentFolder = folderMap.get(folder.parentFolderId);
         parentFolder.folders.push({ ...folder, folders: [], files: [] });
-        folderMap.set(folder.id, parentFolder.folders[parentFolder.folders.length - 1]);
+        folderMap.set(
+            folder.id,
+            parentFolder.folders[parentFolder.folders.length - 1]
+        );
     }
 
     // Organize files under their respective folders
@@ -62,7 +64,7 @@ function buildFilesystem(rootFolders, folders, files) {
     }
 
     // Return the root folders with nested folders and files
-    return rootFolders.map(rootFolder => folderMap.get(rootFolder.id));
+    return rootFolders.map((rootFolder) => folderMap.get(rootFolder.id));
 }
 
 // Define the root folders, subfolders, and files
@@ -97,16 +99,29 @@ let file = {
 
 // Build the filesystem data structure
 const filesystem = buildFilesystem(rootFolders, [subfolder], [file]);
-Promise.
-// Print the filesystem structure
+
 console.log(JSON.stringify(filesystem, null, 2));
+function getAllFoldersAndFiles(folder) {
+    // Initialize arrays to store files and folders
+    const files = [];
+    const folders = [];
 
+    // Function to recursively collect files and folders
+    function collectFilesAndFolders(folder) {
+        // Add the current folder's files to the files array
+        files.push(...folder.files);
 
+        // Recursively process subfolders
+        for (const subfolder of folder.folders) {
+            folders.push(subfolder);
+            collectFilesAndFolders(subfolder);
+        }
+    }
 
-P
-r
-o
-m
-i
-s
-e
+    // Start collecting files and folders from the root folder
+    collectFilesAndFolders(folder);
+
+    // Return the collected files and folders
+    return { files, folders };
+}
+console.log(getAllFoldersAndFiles(filesystem[0]));

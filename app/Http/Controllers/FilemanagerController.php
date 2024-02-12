@@ -13,7 +13,7 @@ class FilemanagerController extends Controller {
      */
     public function index(){
         $title = "Filemanager";
-        $description = "Some description for the page";
+        $description = "View your files";
         return view('pages.applications.filemanager.filemanager_list',compact('title','description'));
     }
 
@@ -22,9 +22,9 @@ class FilemanagerController extends Controller {
      *
      * @return \Illuminate\View\View
      */
-    public function list(){
-        $title = "Filemanager List";
-        $description = "Some description for the page";
-        return view('pages.applications.filemanager.filemanager_list',compact('title','description'));
+    public function shared(){
+        $title = "Shared Files";
+        $description = "View Shared Files";
+        return view('pages.applications.filemanager.shared',compact('title','description'));
     }
 }

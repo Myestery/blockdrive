@@ -16,8 +16,8 @@
                             class="{{ Request::is(app()->getLocale() . '/dashboards/*') ? 'active' : '' }}">Dashboard</a>
                         <ul class="subMenu">
 
-                            <li><a class="{{ Request::is(app()->getLocale() . '/dashboards/demo-two') ? 'active' : '' }}"
-                                    href="{{ route('dashboard.demo_two', app()->getLocale()) }}">{{ trans('menu.dashboard-demo-two') }}</a>
+                            <li><a class="{{ Request::is(app()->getLocale() . '/dashboard') ? 'active' : '' }}"
+                                    href="/dashboard">{{ trans('menu.dashboard-demo-two') }}</a>
                             </li>
                         </ul>
                     </li>

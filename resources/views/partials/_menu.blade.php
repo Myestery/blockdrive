@@ -2,19 +2,19 @@
     <ul class="sidebar_nav">
 
         <li>
-            <a href="/dashboard" class="{{ Request::is('/dashboard') ? 'active':'' }}">
-                <span class="nav-icon uil uil-create-dashboard"></span>
+            <a href="/files" class="{{ Request::is('/files') ? 'active':'' }}">
+                <span class="nav-icon uil uil-repeat"></span>
                 <span class="menu-text">
-                    Dashboard
+                    Files
                 </span>
             </a>
         </li>
 
         <li>
-            <a href="/files" class="{{ Request::is('/files') ? 'active':'' }}">
+            <a href="/shared" class="{{ Request::is('/shared') ? 'active':'' }}">
                 <span class="nav-icon uil uil-repeat"></span>
                 <span class="menu-text">
-                    Files
+                    Shared Files
                 </span>
             </a>
         </li>
